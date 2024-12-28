@@ -1,0 +1,453 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "EmdenAir V1",
+   Icon = 0,
+   LoadingTitle = "Loading...",
+   LoadingSubtitle = "by Fabi X Lounge",
+   Theme = "Default",
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = nil,
+      FileName = "Big Hub"
+   },
+
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+
+   KeySystem = false,
+   KeySettings = {
+      Title = "Untitled",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Hello"}
+   }
+})
+
+local Tab = Window:CreateTab("Player")
+
+-- Infinity Jump Script
+local infinityJumpEnabled = false
+
+local infinityJumpToggle = Tab:CreateToggle({
+   Name = "Infinity Jump",
+   CurrentValue = false,
+   Flag = "ToggleInfinityJump",
+   Callback = function(Value)
+      infinityJumpEnabled = Value
+      if infinityJumpEnabled then
+         print("Infinity Jump aktiviert!")
+         game:GetService("UserInputService").JumpRequest:Connect(function()
+            if infinityJumpEnabled then
+               local playerCharacter = game.Players.LocalPlayer.Character
+               if playerCharacter and playerCharacter:FindFirstChild("Humanoid") then
+                  playerCharacter.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+               end
+            end
+         end)
+      else
+         print("Infinity Jump deaktiviert!")
+      end
+   end,
+})
+
+-- Speed Boost Toggle
+local speedBoostEnabled = false
+local speedBoostValue = 250  -- Speed auf 250 setzen
+
+local speedBoostToggle = Tab:CreateToggle({
+   Name = "Speed Boost",
+   CurrentValue = false,
+   Flag = "ToggleSpeedBoost", 
+   Callback = function(Value)
+      speedBoostEnabled = Value
+      if speedBoostEnabled then
+         print("Speed Boost aktiviert!")
+         local playerCharacter = game.Players.LocalPlayer.Character
+         if playerCharacter and playerCharacter:FindFirstChild("Humanoid") then
+            playerCharacter.Humanoid.WalkSpeed = speedBoostValue  -- Setzt die Gehgeschwindigkeit auf 250
+         end
+      else
+         print("Speed Boost deaktiviert!")
+         local playerCharacter = game.Players.LocalPlayer.Character
+         if playerCharacter and playerCharacter:FindFirstChild("Humanoid") then
+            playerCharacter.Humanoid.WalkSpeed = 16  -- Setzt die Gehgeschwindigkeit zurück auf den Standardwert (16)
+         end
+      end
+   end,
+})
+
+-- Toggle für Godmode (Unsterblichkeit)
+local godModeEnabled = false
+local godModeToggle = Tab:CreateToggle({
+   Name = "Godmode",
+   CurrentValue = false,
+   Flag = "ToggleGodMode",
+   Callback = function(Value)
+      godModeEnabled = Value
+      if godModeEnabled then
+         -- Godmode aktivieren
+         print("Godmode aktiviert!")
+         local player = game.Players.LocalPlayer
+         local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+
+         -- Unsterblichkeits-Schleife
+         while godModeEnabled do
+            wait(1)
+            if humanoid then
+                humanoid.Health = humanoid.MaxHealth
+            end
+         end
+      else
+         -- Godmode deaktivieren
+         print("Godmode deaktiviert!")
+      end
+   end,
+})
+
+-- Fly Toggle (Fliegen)
+local flyingEnabled = false
+local speed = 50  -- Fliespeed anpassen
+local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+
+local flyToggle = Tab:CreateToggle({
+   Name = "Fly",
+   CurrentValue = false,
+   Flag = "ToggleFly", 
+   Callback = function(Value)
+      flyingEnabled = Value
+      if flyingEnabled then
+         print("Fliegen aktiviert!")
+         game:GetService("RunService").Heartbeat:Connect(function()
+            if flyingEnabled and humanoid then
+                humanoid.PlatformStand = true  -- Deaktiviert Schwerkraft
+                game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, speed * 0.1, 0))  -- Fliegt nach oben
+            end
+         end)
+      else
+         -- Fliegen deaktivieren
+         print("Fliegen deaktiviert!")
+         if humanoid then
+            humanoid.PlatformStand = false  -- Aktiviert die Schwerkraft wieder
+         end
+      end
+   end,
+})
+
+-- Noclip Toggle (Durch Objekte gehen)
+local noclipEnabled = false
+local noclipToggle = Tab:CreateToggle({
+   Name = "Noclip",
+   CurrentValue = false,
+   Flag = "ToggleNoclip", 
+   Callback = function(Value)
+      noclipEnabled = Value
+      if noclipEnabled then
+         print("Noclip aktiviert!")
+         game:GetService("RunService").Stepped:Connect(function()
+            local player = game.Players.LocalPlayer
+            if player and player.Character then
+               for _, part in pairs(player.Character:GetDescendants()) do
+                  if part:IsA("BasePart") and part.CanCollide then
+                     part.CanCollide = false
+                  end
+               end
+            end
+         end)
+      else
+         print("Noclip deaktiviert!")
+         local player = game.Players.LocalPlayer
+         if player and player.Character then
+            for _, part in pairs(player.Character:GetDescendants()) do
+               if part:IsA("BasePart") then
+                  part.CanCollide = true
+               end
+            end
+         end
+      end
+   end,
+})
+
+local Tab = Window:CreateTab("Optics")
+
+-- ESP Toggle für eine Umrandung und Namen
+local espEnabled = false
+local function createESP(player)
+    -- Erstellen einer roten Umrandung um den Spieler
+    local highlight = Instance.new("Highlight")
+    highlight.Parent = player.Character
+    highlight.FillTransparency = 0.7
+    highlight.OutlineTransparency = 0.2
+    highlight.OutlineColor = Color3.fromRGB(255, 0, 0)  -- Rote Umrandung
+
+    -- Erstellen eines Namens-Labels über dem Kopf des Spielers
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Adornee = player.Character:WaitForChild("Head")
+    billboardGui.Size = UDim2.new(0, 200, 0, 50)
+    billboardGui.StudsOffset = Vector3.new(0, 2, 0)
+    billboardGui.Parent = player.Character
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.Text = player.Name
+    nameLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.TextSize = 20
+    nameLabel.Parent = billboardGui
+end
+
+local function removeESP(player)
+    -- Entfernen der ESP (Umrandung und Name)
+    if player.Character then
+        local highlight = player.Character:FindFirstChildOfClass("Highlight")
+        if highlight then
+            highlight:Destroy()
+        end
+
+        local billboardGui = player.Character:FindFirstChildOfClass("BillboardGui")
+        if billboardGui then
+            billboardGui:Destroy()
+        end
+    end
+end
+
+local espToggle = Tab:CreateToggle({
+   Name = "ESP Toggle",
+   CurrentValue = false,
+   Flag = "ToggleESP", 
+   Callback = function(Value)
+       espEnabled = Value
+       if espEnabled then
+           -- ESP aktivieren
+           for _, player in pairs(game.Players:GetPlayers()) do
+               if player.Character then
+                   createESP(player)
+               end
+               player.CharacterAdded:Connect(function()
+                   createESP(player)
+               end)
+           end
+       else
+           -- ESP deaktivieren
+           for _, player in pairs(game.Players:GetPlayers()) do
+               if player.Character then
+                   removeESP(player)
+               end
+           end
+       end
+   end,
+})
+
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        if espEnabled then
+            createESP(player)
+        end
+    end)
+end)
+
+-- FPS Boost Toggle
+local fpsBoostEnabled = false
+local RunService = game:GetService("RunService")
+local player = game.Players.LocalPlayer
+local camera = game.Workspace.CurrentCamera
+
+-- Grafikeinstellungen optimieren
+local function optimizeGraphics()
+    -- Reduziert die Ansichtdistanz (Rendering Distance)
+    player.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("PlayerModule"):FindFirstChild("Player").Settings.CameraFieldOfView = 70
+    camera.FieldOfView = 70  -- Setzt die Field of View für die Kamera
+
+    -- Schatten deaktivieren
+    game:GetService("Lighting").ShadowQuality = Enum.ShadowQuality.NoShadows
+
+    -- Reduziert die Qualität von "AmbientOcclusion" und "Bloom"
+    game:GetService("Lighting").AmbientOcclusion.Enabled = false
+    game:GetService("Lighting").Bloom.Enabled = false
+
+    -- Verringert die Partikelmenge
+    game:GetService("Lighting").ParticleDensity = Enum.ParticleDensity.Low
+
+    -- Reduziert die Anzahl der "Details" und "Particles"
+    game:GetService("GraphicsSettings"):SetQualityLevel(Enum.QualityLevel.Level01)
+end
+
+-- FPS Boost durch Reduzierung der Tickrate
+local function increaseFPS()
+    RunService.Heartbeat:Connect(function()
+        -- Deaktiviert "FastMouse" und andere unnötige Dienste
+        game:GetService("UserInputService").MouseIconEnabled = false
+        game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.LockCenter
+    end)
+end
+
+-- FPS Boost Toggle
+local fpsBoostToggle = Tab:CreateToggle({
+   Name = "FPS Boost",
+   CurrentValue = false,
+   Flag = "ToggleFPSBoost", 
+   Callback = function(Value)
+      fpsBoostEnabled = Value
+      if fpsBoostEnabled then
+         -- Starte die Optimierungen
+         print("FPS Boost aktiviert!")
+         optimizeGraphics()
+         increaseFPS()
+
+         -- Optional: Die Kamera kann auch durch Skripte beeinflusst werden, um mehr Leistung zu erzielen
+         game:GetService("RunService").RenderStepped:Connect(function()
+            camera.CameraType = Enum.CameraType.Scriptable  -- Schaltet auf Scriptable um, um die Leistung zu verbessern
+            camera.CFrame = camera.CFrame -- Hält die Kamera an einer festen Position, um unnötige Berechnungen zu vermeiden
+         end)
+      else
+         print("FPS Boost deaktiviert!")
+         -- Hier kannst du zusätzliche Optimierungen zurücksetzen, wenn der Boost deaktiviert wird
+         -- Zum Beispiel: Reset von Kamera, Grafikeinstellungen und anderen Diensten
+      end
+   end,
+})
+
+local Tab = Window:CreateTab("Weapon")
+
+-- Aimbot Test Script
+local aimbotEnabled = false
+local targetPart = "Head" -- Zielbereich, z. B. "Head", "Torso", etc.
+
+local aimbotToggle = Tab:CreateToggle({
+   Name = "Aimbot",
+   CurrentValue = false,
+   Flag = "ToggleAimbot",
+   Callback = function(Value)
+      aimbotEnabled = Value
+      if aimbotEnabled then
+         print("Aimbot aktiviert!")
+         game:GetService("RunService").RenderStepped:Connect(function()
+            if aimbotEnabled then
+               local localPlayer = game.Players.LocalPlayer
+               local camera = workspace.CurrentCamera
+
+               local closestPlayer = nil
+               local shortestDistance = math.huge
+
+               for _, player in pairs(game.Players:GetPlayers()) do
+                  if player ~= localPlayer and player.Character and player.Character:FindFirstChild(targetPart) then
+                     local targetPosition = player.Character[targetPart].Position
+                     local screenPoint = camera:WorldToViewportPoint(targetPosition)
+                     local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)).Magnitude
+
+                     if distance < shortestDistance then
+                        shortestDistance = distance
+                        closestPlayer = player
+                     end
+                  end
+               end
+
+               if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild(targetPart) then
+                  camera.CFrame = CFrame.new(camera.CFrame.Position, closestPlayer.Character[targetPart].Position)
+               end
+            end
+         end)
+      else
+         print("Aimbot deaktiviert!")
+      end
+   end,
+})
+
+-- Infinite Ammo Script
+local infiniteAmmoEnabled = false
+
+local ammoToggle = Tab:CreateToggle({
+   Name = "Infinite Ammo",
+   CurrentValue = false,
+   Flag = "ToggleInfiniteAmmo",
+   Callback = function(Value)
+      infiniteAmmoEnabled = Value
+      if infiniteAmmoEnabled then
+         print("Unendliche Munition aktiviert!")
+         game:GetService("RunService").RenderStepped:Connect(function()
+            if infiniteAmmoEnabled then
+               local player = game.Players.LocalPlayer
+               local backpack = player:FindFirstChild("Backpack")
+               local character = player.Character
+
+               -- Durchsucht Waffen im Rucksack oder Charakter
+               if backpack then
+                  for _, tool in pairs(backpack:GetChildren()) do
+                     if tool:FindFirstChild("Ammo") then
+                        tool.Ammo.Value = math.huge -- Setzt Munition auf unendlich
+                     end
+                  end
+               end
+
+               if character then
+                  for _, tool in pairs(character:GetChildren()) do
+                     if tool:FindFirstChild("Ammo") then
+                        tool.Ammo.Value = math.huge -- Setzt Munition auf unendlich
+                     end
+                  end
+               end
+            end
+         end)
+      else
+         print("Unendliche Munition deaktiviert!")
+      end
+   end,
+})
+
+-- Automatisches Schießen für Testzwecke in einem privaten Spiel
+
+local gun = nil  -- Deine Waffe hier zuweisen
+local targetPlayer = nil  -- Der Zielspieler, den du anvisieren möchtest
+local shootingEnabled = false
+
+-- Funktion zum Schießen
+local function shootAtTarget()
+    if shootingEnabled and gun and targetPlayer and targetPlayer.Character then
+        local character = targetPlayer.Character
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+
+        if humanoidRootPart then
+            -- Positioniere die Waffe auf das Ziel
+            gun.CFrame = CFrame.new(gun.Position, humanoidRootPart.Position)
+            -- Simuliere das Schießen (zum Beispiel, indem du einen Schuss abfeuerst)
+            -- Ersetze dies mit deinem eigenen Waffenschießcode
+            gun:FireServer()  -- Beispiel für das Schießen mit einem RemoteEvent
+        end
+    end
+end
+
+-- Funktion für das Toggle
+local function toggleAutoShoot()
+    shootingEnabled = not shootingEnabled
+    if shootingEnabled then
+        print("Automatisches Schießen aktiviert!")
+        -- Starte das Schießen alle 0.5 Sekunden oder je nach Bedarf
+        while shootingEnabled do
+            wait(0.5)  -- Zeit zwischen den Schüssen
+            shootAtTarget()
+        end
+    else
+        print("Automatisches Schießen deaktiviert!")
+    end
+end
+
+-- Beispiel für ein Toggle, das du in einem GUI verwenden könntest
+local ToggleButton = Instance.new("TextButton")  -- Beispiel-Button für GUI
+ToggleButton.Text = "Auto Shoot"
+ToggleButton.Position = UDim2.new(0, 100, 0, 100)
+ToggleButton.Size = UDim2.new(0, 200, 0, 50)
+ToggleButton.Parent = game.Players.LocalPlayer.PlayerGui
+
+ToggleButton.MouseButton1Click:Connect(toggleAutoShoot)
+})
+
